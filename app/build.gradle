@@ -47,3 +47,107 @@ class Person {
     String name = ""
     int age = 10
 }
+
+
+/**********************************/
+///only 断言的用法
+//// 需求首发渠道只有 百度 和 应用宝
+
+final String BUILD_APPS_ALL = "all"
+final String BUILD_APPS_SHOUFA = "shoufa"
+final String BUILD_APPS_EXCLUDE_SHOUFA = "exclude_shoufa"
+
+
+task ex48QQRelease() {
+    println "打应用宝的包"
+}
+
+task ex48BaiduRelease() {
+    println "打百度的包"
+}
+
+task ex48HuaWeiRelease() {
+    println "打华为的包"
+}
+
+task ex48MiuiRelease() {
+    println("打Miui的包")
+    description " --- 打miui的包"
+}
+
+
+task myBuild() {
+    group BasePlugin.BUILD_GROUP
+    description "打渠道包"
+}
+
+myBuild.dependsOn ex48QQRelease, ex48BaiduRelease, ex48HuaWeiRelease, ex48MiuiRelease
+
+ex48QQRelease.onlyIf {
+
+    println "这个是断言"
+    def excute = false
+    if (project.hasProperty("build_apps")) {
+        Object buildApps = project.property("build_apps")
+        if (BUILD_APPS_SHOUFA.equals(buildApps)
+                || BUILD_APPS_ALL.equals(buildApps)) {
+            excute = true
+        } else {
+            excute = false
+        }
+    } else {
+        excute = true
+    }
+    println "这个是断言 excute = $excute"
+    excute
+}
+
+ex48BaiduRelease.onlyIf {
+    def excute = false
+    if (project.hasProperty("build_apps")) {
+        Object buildApps = project.property("build_apps")
+        if (BUILD_APPS_SHOUFA.equals(buildApps)
+                || BUILD_APPS_ALL.equals(buildApps)) {
+            excute = true
+        } else {
+            excute = false
+        }
+    } else {
+        excute = true
+    }
+    excute
+}
+
+ex48HuaWeiRelease.onlyIf {
+    def excute = false
+    if (project.hasProperty("build_apps")) {
+        Object buildApps = project.property("build_apps")
+        if (BUILD_APPS_EXCLUDE_SHOUFA.equals(buildApps)
+                || BUILD_APPS_ALL.equals(buildApps)) {
+            excute = true
+        } else {
+            excute = false
+        }
+    } else {
+        excute = true
+    }
+    excute
+}
+
+ex48MiuiRelease.onlyIf {
+    def excute = false
+    if (project.hasProperty("build_apps")) {
+        Object buildApps = project.property("build_apps")
+        if (BUILD_APPS_EXCLUDE_SHOUFA.equals(buildApps)
+                || BUILD_APPS_ALL.equals(buildApps)) {
+            excute = true
+        } else {
+            excute = false
+        }
+    } else {
+        excute = true
+    }
+    excute
+}
+
+/**********************************/
