@@ -6,6 +6,25 @@ apply plugin: 'kotlin-android-extensions'
 
 android {
     compileSdkVersion 29
+
+
+    /// 声明有顺序关系的
+    signingConfigs {
+        ///配置默认的签名信息，对生成的App签名
+        debug {
+            keyAlias "MyDebug"
+        }
+
+        release {
+            keyAlias "MyRelease"
+        }
+
+        custom {
+
+        }
+    }
+
+
     defaultConfig {
         applicationId "com.rongxianren.gradle_study"
         minSdkVersion 19
@@ -13,13 +32,21 @@ android {
         versionCode 1
         versionName "1.0"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+        signingConfig signingConfigs.custom
     }
     buildTypes {
         release {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+            signingConfig signingConfigs.release
+        }
+
+        debug {
+            applicationIdSuffix ".debug"
         }
     }
+
+
 }
 
 dependencies {
@@ -53,30 +80,34 @@ class Person {
 ///only 断言的用法
 //// 需求首发渠道只有 百度 和 应用宝
 
+tasks.withType(Test) {
+    enableAssertions = true
+}
+
 final String BUILD_APPS_ALL = "all"
 final String BUILD_APPS_SHOUFA = "shoufa"
 final String BUILD_APPS_EXCLUDE_SHOUFA = "exclude_shoufa"
 
 
-task ex48QQRelease() {
+task ex48QQRelease {
     println "打应用宝的包"
 }
 
-task ex48BaiduRelease() {
+task ex48BaiduRelease {
     println "打百度的包"
 }
 
-task ex48HuaWeiRelease() {
+task ex48HuaWeiRelease {
     println "打华为的包"
 }
 
-task ex48MiuiRelease() {
+task ex48MiuiRelease {
     println("打Miui的包")
     description " --- 打miui的包"
 }
 
 
-task myBuild() {
+task myBuild {
     group BasePlugin.BUILD_GROUP
     description "打渠道包"
 }
@@ -92,11 +123,7 @@ ex48QQRelease.onlyIf {
         if (BUILD_APPS_SHOUFA.equals(buildApps)
                 || BUILD_APPS_ALL.equals(buildApps)) {
             excute = true
-        } else {
-            excute = false
         }
-    } else {
-        excute = true
     }
     println "这个是断言 excute = $excute"
     excute
@@ -106,14 +133,10 @@ ex48BaiduRelease.onlyIf {
     def excute = false
     if (project.hasProperty("build_apps")) {
         Object buildApps = project.property("build_apps")
-        if (BUILD_APPS_SHOUFA.equals(buildApps)
-                || BUILD_APPS_ALL.equals(buildApps)) {
+        if (BUILD_APPS_SHOUFA == buildApps
+                || BUILD_APPS_ALL == buildApps) {
             excute = true
-        } else {
-            excute = false
         }
-    } else {
-        excute = true
     }
     excute
 }
@@ -125,11 +148,7 @@ ex48HuaWeiRelease.onlyIf {
         if (BUILD_APPS_EXCLUDE_SHOUFA.equals(buildApps)
                 || BUILD_APPS_ALL.equals(buildApps)) {
             excute = true
-        } else {
-            excute = false
         }
-    } else {
-        excute = true
     }
     excute
 }
@@ -141,12 +160,9 @@ ex48MiuiRelease.onlyIf {
         if (BUILD_APPS_EXCLUDE_SHOUFA.equals(buildApps)
                 || BUILD_APPS_ALL.equals(buildApps)) {
             excute = true
-        } else {
-            excute = false
         }
-    } else {
-        excute = true
     }
+    println "ex48MiuiRelease 这个是断言 excute = $excute"
     excute
 }
 
