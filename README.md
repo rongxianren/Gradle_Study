@@ -33,3 +33,59 @@
 
 
 ###### Android Gradle 高级自定义
+* 分模块管理gradle文件内容 ext的用法
+
+* gradle中执行shell脚本命令
+    * git中 动态获取版本号和版本名称(实际中好像不太实用)
+    ```java
+    def getAppVersionName() {
+        def stdout = new ByteArrayOutputStream()
+        exec {
+            //获取当前最新的tag
+            commandLine 'git', 'describe', '--abbrev=0', '--tags'
+            standardOutput = stdout
+        }
+        return stdout.toString()
+    }
+
+    def getVersionCode() {
+        def stdout = new ByteArrayOutputStream()
+        exec {
+            commandLine 'git', 'tag', '--list'
+            standardOutput = stdout
+        }
+        return stdout.toString().split("\n").size()
+    }
+
+    task VersionTask {
+        println " version ${getAppVersionName()} veriosnCode = ${getVersionCode()}"
+    }
+    ```
+* 属性文件中动态获取版本信息
+
+* 隐藏签名文件信息
+    * 1、签名文件信息存放在服务器上，打包的时候从打包服务器动态获取设置。
+    * 2、签名信息以环境变量的形式配置到打包服务器中，打包的时候通过 System.getenv("Name")函数去获取
+    * 3、示例展示
+    ```java
+    signingConfigs{
+        def appStoreFile = System.getenv("STORE_FILE")
+        def appStorePassword = System.getenv("STORE_PASSWORD")
+        def appKeyAlias = System.getenv("KEY_ALIAS")
+        def appKeyPassword = System.getenv("KEY_PASSWORD")
+        release{
+            storeFile file(appStoreFile)
+            storePassword appStorePassword
+            keyAlias appKeyAlias
+            keyPassword appKeyPassword
+        }
+    }
+
+    buildTypes{
+        release{
+            signingConfig signingConfigs.release
+        }
+    }
+    ```
+
+
