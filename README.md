@@ -89,3 +89,31 @@
     ```
 
 
+
+###### Android Gradle 多项目构建
+
+* 库项目单独发布到Maven库
+
+
+###### Android Gradle 多渠道构建
+
+* 理解dimension的作用
+    * 给Flavor分组，把不同Flavor中的相同部分抽取出来。避免写重复的代码
+
+    * 维度的优先级
+    ```java
+    android{
+        defaultConfig{
+            applicationId "com.app.example"
+            minSdkVersion 14
+            targetSdkVersion 23
+            versionCode 1
+            versionName '1.0.0'
+        }
+
+        flavorDimensions 'abi', 'version'
+    }
+    这里的优先级 abi>version>defaultConfig
+    优先级非常重要，优先级高的flavor会替换掉优先级低的资源、代码、配置等。
+    (variant)名字的构成 = ProductFlavor(dimension优先级高的在前面)+buildType
+    ```

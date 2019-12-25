@@ -7,6 +7,10 @@ apply plugin: 'kotlin-android-extensions'
 android {
     compileSdkVersion 29
 
+    ///java编译选项设置
+    compileOptions {
+
+    }
 
     /// 声明有顺序关系的
     signingConfigs {
@@ -43,6 +47,34 @@ android {
 
         debug {
             applicationIdSuffix ".debug"
+        }
+
+        custom {
+
+        }
+    }
+
+    flavorDimensions "abi", 'version'
+
+    productFlavors {
+        free {
+            dimension "version"
+            applicationId "com.app.free"
+            manifestPlaceholders = [price: 0]
+        }
+
+        paid {
+            dimension "version"
+            applicationId "com.app.paid"
+            manifestPlaceholders = [price: 100]
+        }
+
+        arm {
+            dimension "abi"
+        }
+
+        x86 {
+            dimension "abi"
         }
     }
 
@@ -166,4 +198,12 @@ ex48MiuiRelease.onlyIf {
     excute
 }
 
+/**********************************/
+
+
+/****************gradle获取环境变量中设置的值******************/
+task getValueFromEnv {
+    def java_home = System.getenv("JAVA_HOME")
+    println "环境变量测试 --- java_home = $java_home"
+}
 /**********************************/
