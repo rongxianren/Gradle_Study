@@ -3,14 +3,14 @@
 ##### 学习参考资料
 * Android Gradle 权威指南
 
-###### Groovy基本语法
+###### 1、Groovy基本语法
 * 函数
 
 * 闭包
 
-###### Gradle任务
+###### 2、Gradle任务
 
-###### Gradle插件
+###### 3、Gradle插件
 * 二进制插件
 
 * 应用脚本插件
@@ -19,20 +19,20 @@
 
 * 应用plugins DSL应用插件
 
-###### 自定义插件
+###### 4、自定义插件
 
 
-###### Java Gradle插件
+###### 5、Java Gradle插件
 
 * 源集的操作
 
 
-###### Android Gradle插件
+###### 6、Android Gradle插件
 
-###### 自定义Android Gradle工程
+###### 7、自定义Android Gradle工程
 
 
-###### Android Gradle 高级自定义
+###### 8、Android Gradle 高级自定义
 * 分模块管理gradle文件内容 ext的用法
 
 * gradle中执行shell脚本命令
@@ -90,12 +90,12 @@
 
 
 
-###### Android Gradle 多项目构建
+###### 9、Android Gradle 多项目构建
 
 * 库项目单独发布到Maven库
 
 
-###### Android Gradle 多渠道构建
+###### 10、Android Gradle 多渠道构建
 
 * 理解dimension的作用
     * 给Flavor分组，把不同Flavor中的相同部分抽取出来。避免写重复的代码
