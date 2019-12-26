@@ -26,3 +26,13 @@ allprojects {
 task clean(type: Delete) {
     delete rootProject.buildDir
 }
+
+task myTask {
+    group BasePlugin.BUILD_GROUP
+    description "打渠道包"
+}
+
+def customEach(closure){
+
+}
+

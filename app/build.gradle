@@ -152,8 +152,8 @@ ex48QQRelease.onlyIf {
     def excute = false
     if (project.hasProperty("build_apps")) {
         Object buildApps = project.property("build_apps")
-        if (BUILD_APPS_SHOUFA.equals(buildApps)
-                || BUILD_APPS_ALL.equals(buildApps)) {
+        if (BUILD_APPS_SHOUFA == buildApps
+                || BUILD_APPS_ALL == buildApps) {
             excute = true
         }
     }
@@ -177,8 +177,8 @@ ex48HuaWeiRelease.onlyIf {
     def excute = false
     if (project.hasProperty("build_apps")) {
         Object buildApps = project.property("build_apps")
-        if (BUILD_APPS_EXCLUDE_SHOUFA.equals(buildApps)
-                || BUILD_APPS_ALL.equals(buildApps)) {
+        if (BUILD_APPS_EXCLUDE_SHOUFA == buildApps
+                || BUILD_APPS_ALL == buildApps) {
             excute = true
         }
     }
@@ -189,8 +189,8 @@ ex48MiuiRelease.onlyIf {
     def excute = false
     if (project.hasProperty("build_apps")) {
         Object buildApps = project.property("build_apps")
-        if (BUILD_APPS_EXCLUDE_SHOUFA.equals(buildApps)
-                || BUILD_APPS_ALL.equals(buildApps)) {
+        if (BUILD_APPS_EXCLUDE_SHOUFA == buildApps
+                || BUILD_APPS_ALL == buildApps) {
             excute = true
         }
     }
