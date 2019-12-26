@@ -31,4 +31,3 @@ task myTask {
     group BasePlugin.BUILD_GROUP
     description "打渠道包"
 }
-

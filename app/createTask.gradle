@@ -1,8 +1,32 @@
-
 ///创建task的方式一
 def createTask = task(createTask)
 createTask.doLast {
     println "创建任务的方法原型为 Task task(String name) throws InvalidUserDataException"
 }
 
+
+///创建task的方式二 名字+task配置map
+def createTask2 = task(group: BasePlugin.BUILD_GROUP, createTask2)
+createTask2.doLast {
+    println "创建任务的方法原型为 Task task(Map<String, ?> args, String name) throws InvalidUserDataException"
+}
+
+
+///创建task的方式三 名字+闭包
+task creatTask3 {
+    description "演示任务创建"
+    doLast {
+        println "创建任务的原型为 Task task(String name, Closure configureClosure);"
+        println "任务描述: $description"
+    }
+}
+
+///创建task的方式三 使用TaskContainer的create方法创建
+tasks.create("creatTask4") {
+    description "演示任务创建"
+    doLast {
+        println "创建任务的原型为 Task task(String name, Closure configureClosure);"
+        println "任务描述: $description"
+    }
+}
 
