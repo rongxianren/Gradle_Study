@@ -120,9 +120,10 @@
         }
       ```
 ###### 2、Gradle任务
-    * Gradle中有很多创建task的方式，这主要是依赖于Project给我们提供的快捷方法以及TaskContainer提供的相关Create方法。下面我们就来
-看下到底有哪些创建task的方式。
-    * (1) 直接以一个任务名字创建任务的方式
+ * Gradle中有很多创建task的方式，这主要是依赖于Project给我们提供的快捷方法以及TaskContainer  
+ 提供的相关Create方法。下面我们就来看下到底有哪些创建task的方式。
+ 
+ * 1、直接以一个任务名字创建任务的方式
    ```groovy
 
         def Task createTask1 = task(createTask1)
@@ -130,7 +131,7 @@
             println "....."
         }
    ```
-   * (2) 以一个任务名+任务配置的map
+* 2、以一个任务名+任务配置的map
    ```groovy
 
       def createTask2 = task(createTask2, group:BasePlugin.BUILD_GROUP)
@@ -138,7 +139,7 @@
           println "创建任务的方法原型为 Task task(Map<String, ?> args, String name) throws InvalidUserDataException"
       }
    ```
-   * (3) 名字+闭包的形式
+* 3、名字+闭包的形式
    ```groovy
     ///创建task的方式三 名字+闭包
     task creatTask3{
@@ -149,7 +150,7 @@
         }
     }
    ```
-   * (4) 使用TaskContainer对象的create方法来创建
+* 4、使用TaskContainer对象的create方法来创建
    ```groovy
     tasks.create("createTask4") {
         description "演示任务创建"
