@@ -20,7 +20,7 @@
     * (1) Groovy中单引号双引号都能表示字符串
     * (2) 区别: 单引号的字符串中没用运算能力，双引号字符串则具有运算能力。
         * 列子:
-        ```java
+        ```groovy
            def name = "张三"
            println '单引号的变量计算: ${name}'
            println "双引号的变量计算: ${name}"
@@ -31,7 +31,7 @@
         ```
 * 2、集合
     * (1) List
-        ```java
+        ```groovy
             task pintList{
                 def numList = [1,2,3,4,5,6,7]
                 println numList.getClass().name
@@ -61,7 +61,7 @@
 * 3、函数
     * Groovy中函数的定义声明的语法，跟其他面向函数编程语言的语法是非常的相似的，列如kotlin方法的声明和定义。
     * (1) 函数的括号是可以省略的
-        ```java
+        ```groovy
             task invokeMethod{
                 method1(1,2)
                 method1 1,2 ///括号可以省略
@@ -71,7 +71,7 @@
             }
         ```
     * (2) return关键字是可以省略的
-      ```java
+      ```groovy
         task printlnMethodReturn{
             def add1 = method2 1,2
             def add2 = method2 5,3
@@ -86,7 +86,7 @@
         }
       ```
     * (3) 代码块可以做为参数传递，其实这就是闭包参数的用法
-        ```java
+        ```groovy
             ///numList是一个List
             numList.each({ println it})
 
@@ -105,7 +105,7 @@
 * 4、闭包
     * 闭包其实就是一段代码块
     * (1) 集合的each方法我们前面已经用过了，下面我们就以其伪例，实现一个类似的闭包功能。
-      ```java
+      ```groovy
         task helloClosure{
             customEach{
                 println it
@@ -189,7 +189,7 @@
 
 * gradle中执行shell脚本命令
     * git中 动态获取版本号和版本名称(实际中好像不太实用)
-    ```java
+    ```groovy
     def getAppVersionName() {
         def stdout = new ByteArrayOutputStream()
         exec {
@@ -219,7 +219,7 @@
     * 1、签名文件信息存放在服务器上，打包的时候从打包服务器动态获取设置。
     * 2、签名信息以环境变量的形式配置到打包服务器中，打包的时候通过 System.getenv("Name")函数去获取
     * 3、示例展示
-    ```java
+    ```groovy
     signingConfigs{
         def appStoreFile = System.getenv("STORE_FILE")
         def appStorePassword = System.getenv("STORE_PASSWORD")
@@ -253,7 +253,7 @@
     * 给Flavor分组，把不同Flavor中的相同部分抽取出来。避免写重复的代码
 
     * 维度的优先级
-    ```java
+    ```groovy
     android{
         defaultConfig{
             applicationId "com.app.example"
