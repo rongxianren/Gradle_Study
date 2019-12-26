@@ -102,7 +102,7 @@
         ```
 
 
-* 闭包
+* 4、闭包
     * 闭包其实就是一段代码块
     * (1) 集合的each方法我们前面已经用过了，下面我们就以其伪例，实现一个类似的闭包功能。
       ```java
@@ -121,6 +121,15 @@
       ```
 
 ###### 2、Gradle任务
+* Gradle中有很多创建task的方式，这主要是依赖于Project给我们提供的快捷方法以及TaskContainer提供的相关Create方法。下面我们就来
+看下到底有哪些创建task的方式。
+* (1) 直接以一个任务名字创建任务的方式
+   ```groovy
+        def Task createTask1 = task(createTask1)
+        createTask1.doLast{
+            println "....."
+        }
+   ```
 
 ###### 3、Gradle插件
 * 二进制插件

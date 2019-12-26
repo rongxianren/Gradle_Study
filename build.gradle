@@ -32,7 +32,3 @@ task myTask {
     description "打渠道包"
 }
 
-def customEach(closure){
-
-}
-

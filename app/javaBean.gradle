@@ -1,0 +1,15 @@
+
+task HelloJavaBean{
+    Person person = new Person()
+
+    person.name = "张三"
+    person.age = 10
+
+    println "person name is $person.name"
+}
+
+
+class Person {
+    String name = ""
+    int age = 10
+}
