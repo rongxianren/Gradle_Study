@@ -126,18 +126,18 @@
  * 1、直接以一个任务名字创建任务的方式
    ```groovy
 
-        def Task createTask1 = task(createTask1)
-        createTask1.doLast{
-            println "....."
-        }
+     def Task createTask1 = task(createTask1)
+     createTask1.doLast{
+         println "....."
+     }
    ```
 * 2、以一个任务名+任务配置的map
    ```groovy
 
-      def createTask2 = task(createTask2, group:BasePlugin.BUILD_GROUP)
-      createTask2.doLast {
-          println "创建任务的方法原型为 Task task(Map<String, ?> args, String name) throws InvalidUserDataException"
-      }
+   def createTask2 = task(createTask2, group:BasePlugin.BUILD_GROUP)
+   createTask2.doLast {
+       println "创建任务的方法原型为 Task task(Map<String, ?> args, String name) throws InvalidUserDataException"
+   }
    ```
 * 3、名字+闭包的形式
    ```groovy
