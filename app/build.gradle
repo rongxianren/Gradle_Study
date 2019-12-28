@@ -5,39 +5,54 @@ apply plugin: 'kotlin-android'
 apply plugin: 'kotlin-android-extensions'
 
 ///演示任务创建的文件
-apply from: 'createTask.gradle'
+//apply from: 'createTask.gradle'
 
 ///演示javaBean用法的文件
-apply from: 'javaBean.gradle'
+//apply from: 'javaBean.gradle'
 
-///onlyIf断言的用法
+//onlyIf断言的用法
 apply from: 'onlyIf.gradle'
 
 
+///任务的多种访问方式
+//apply from: 'access_and_opration_task.gradle'
+
+sourceSets {
+
+}
+
 android {
+
     compileSdkVersion 29
+    buildToolsVersion '28.0.3'
 
     ///java编译选项设置
     compileOptions {
 
     }
 
+    sourceSets{
+
+    }
+
     /// 声明有顺序关系的
     signingConfigs {
         ///配置默认的签名信息，对生成的App签名
-        debug {
-            keyAlias "MyDebug"
-        }
 
         release {
-            keyAlias "MyRelease"
+            storeFile file(storeFileCN)
+            storePassword storePasswordCN
+            keyAlias keyAliasCN
+            keyPassword keyPasswordCN
         }
 
         custom {
-
+            storeFile file(storeFileCN)
+            storePassword storePasswordCN
+            keyAlias keyAliasCN
+            keyPassword keyPasswordCN
         }
     }
-
 
     defaultConfig {
         applicationId "com.rongxianren.gradle_study"
@@ -87,9 +102,8 @@ android {
             dimension "abi"
         }
     }
-
-
 }
+
 
 dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
@@ -108,4 +122,7 @@ task getValueFromEnv {
     def java_home = System.getenv("JAVA_HOME")
     println "环境变量测试 --- java_home = $java_home"
 }
+
+//getValueFromEnv.dependsOn(':app:assembleX86FreeRelease')
+getValueFromEnv.dependsOn ':app:assembleX86FreeRelease'
 /**********************************/

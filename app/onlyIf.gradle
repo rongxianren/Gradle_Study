@@ -1,31 +1,33 @@
-
 ///only 断言的用法
 //// 需求首发渠道只有 百度 和 应用宝
-
-tasks.withType(Test) {
-    enableAssertions = true
-}
 
 final String BUILD_APPS_ALL = "all"
 final String BUILD_APPS_SHOUFA = "shoufa"
 final String BUILD_APPS_EXCLUDE_SHOUFA = "exclude_shoufa"
 
 
-task ex48QQRelease {
-    println "打应用宝的包"
+task X86Free {
+    doLast {
+        println "X86Free 包"
+    }
 }
 
-task ex48BaiduRelease {
-    println "打百度的包"
+task armFree {
+    doLast {
+        println "armFree 包"
+    }
 }
 
-task ex48HuaWeiRelease {
-    println "打华为的包"
+task X86Paid {
+    doLast {
+        println "X86Paid 包"
+    }
 }
 
-task ex48MiuiRelease {
-    println("打Miui的包")
-    description " --- 打miui的包"
+task armPaid {
+    doLast {
+        println("armPaid 包")
+    }
 }
 
 
@@ -34,24 +36,14 @@ task myBuild {
     description "打渠道包"
 }
 
-myBuild.dependsOn ex48QQRelease, ex48BaiduRelease, ex48HuaWeiRelease, ex48MiuiRelease
+//X86Free.dependsOn(':app:assembleX86FreeRelease')
+//X86Paid.dependsOn(':app:assembleX86PaidRelease')
+//armFree.dependsOn(':app:assembleArmFreeRelease')
+//armPaid.dependsOn(':app:assembleArmPaidRelease')
 
-ex48QQRelease.onlyIf {
+myBuild.dependsOn 'X86Free', 'X86Paid', 'armFree', 'armPaid'
 
-    println "这个是断言"
-    def excute = false
-    if (project.hasProperty("build_apps")) {
-        Object buildApps = project.property("build_apps")
-        if (BUILD_APPS_SHOUFA == buildApps
-                || BUILD_APPS_ALL == buildApps) {
-            excute = true
-        }
-    }
-    println "这个是断言 excute = $excute"
-    excute
-}
-
-ex48BaiduRelease.onlyIf {
+X86Free.onlyIf {
     def excute = false
     if (project.hasProperty("build_apps")) {
         Object buildApps = project.property("build_apps")
@@ -63,27 +55,43 @@ ex48BaiduRelease.onlyIf {
     excute
 }
 
-ex48HuaWeiRelease.onlyIf {
+X86Paid.onlyIf {
     def excute = false
     if (project.hasProperty("build_apps")) {
         Object buildApps = project.property("build_apps")
-        if (BUILD_APPS_EXCLUDE_SHOUFA == buildApps
+        if (BUILD_APPS_SHOUFA == buildApps
                 || BUILD_APPS_ALL == buildApps) {
             excute = true
+            X86Paid.dependsOn(':app:assembleX86PaidRelease')
         }
     }
     excute
 }
 
-ex48MiuiRelease.onlyIf {
+armFree.onlyIf {
     def excute = false
     if (project.hasProperty("build_apps")) {
         Object buildApps = project.property("build_apps")
         if (BUILD_APPS_EXCLUDE_SHOUFA == buildApps
                 || BUILD_APPS_ALL == buildApps) {
             excute = true
+            armFree.dependsOn(':app:assembleArmFreeRelease')
         }
     }
-    println "ex48MiuiRelease 这个是断言 excute = $excute"
     excute
 }
+
+armPaid.onlyIf {
+    def excute = false
+    if (project.hasProperty("build_apps")) {
+        Object buildApps = project.property("build_apps")
+        if (BUILD_APPS_EXCLUDE_SHOUFA == buildApps
+                || BUILD_APPS_ALL == buildApps) {
+            excute = true
+            armPaid.dependsOn(':app:assembleArmPaidRelease')
+        }
+    }
+    excute
+}
+
+//// 执行命令  gradlew myBuild -P build_apps=shoufa

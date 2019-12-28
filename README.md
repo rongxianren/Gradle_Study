@@ -123,53 +123,237 @@
  * Gradle中有很多创建task的方式，这主要是依赖于Project给我们提供的快捷方法以及TaskContainer  
  提供的相关Create方法。下面我们就来看下到底有哪些创建task的方式。
  
- * 1、直接以一个任务名字创建任务的方式
-   ```groovy
+     * 1、直接以一个任务名字创建任务的方式
+       ```groovy
 
-     def Task createTask1 = task(createTask1)
-     createTask1.doLast{
-         println "....."
-     }
-   ```
-* 2、以一个任务名+任务配置的map
-   ```groovy
+         def Task createTask1 = task(createTask1)
+         createTask1.doLast{
+             println "....."
+         }
+       ```
+    * 2、以一个任务名+任务配置的map
+       ```groovy
 
-   def createTask2 = task(createTask2, group:BasePlugin.BUILD_GROUP)
-   createTask2.doLast {
-       println "创建任务的方法原型为 Task task(Map<String, ?> args, String name) throws InvalidUserDataException"
-   }
-   ```
-* 3、名字+闭包的形式
-   ```groovy
-    ///创建task的方式三 名字+闭包
-    task creatTask3{
-        description "演示任务创建"
-        doLast{
-            println "创建任务的原型为 Task task(String name, Closure configureClosure);"
-            println "任务描述: $description"
+       def createTask2 = task(createTask2, group:BasePlugin.BUILD_GROUP)
+       createTask2.doLast {
+           println "创建任务的方法原型为 Task task(Map<String, ?> args, String name) throws InvalidUserDataException"
+       }
+       ```
+    * 3、名字+闭包的形式
+       ```groovy
+        ///创建task的方式三 名字+闭包
+        task creatTask3{
+            description "演示任务创建"
+            doLast{
+                println "创建任务的原型为 Task task(String name, Closure configureClosure);"
+                println "任务描述: $description"
+            }
         }
-    }
-   ```
-* 4、使用TaskContainer对象的create方法来创建
-   ```groovy
-    tasks.create("createTask4") {
-        description "演示任务创建"
+       ```
+    * 4、使用TaskContainer对象的create方法来创建
+       ```groovy
+        tasks.create("createTask4") {
+            description "演示任务创建"
+            doLast {
+                println "创建任务的原型为 Task task(String name, Closure configureClosure);"
+                println "任务描述: $description"
+            }
+        }
+       ```
+
+ * 2、多种访问任务的方式
+    * (1)直接通过任务的名字访问和操作任务
+        ```groovy
+        task exAccessTask1
+        exAccessTask1.doLast{
+            println "exAccessTask1.doLast"
+        }
+
+        ```
+    * (2) 任务都是通过TaskContainer创建的，其实TaskContainer就是我们创建的任务集合，
+          所以在project中我们可以通过tasks的属性访问TaskContainer
+      ```groovy
+      task exeAccessTask2
+      tasks['exeAccessTask2'].doLast{
+          println 'exeAccessTask2.doLast'
+      }
+      ```
+
+ * 3、任务分组和描述
+    * 分组和描述是任务创建的时候，给任务添加的一些额外信息，有利用开发过程中其他开发者
+      更好的理解当前任务的用途和用法。
+
+    * 示例
+    ```groovy
+    def myTask = task groupTask
+    ///group 在AS的task列表中就能体现出来
+    myTask.group = BasePlugin.BUILD_GROUP
+    myTask.description = '这是给认为添加描述的示例'
+    ```
+
+ * 4、任务的排序
+    * (1) ```groovy taskB.shouldRunAfter(taskA) ```表示taskB应该在taskA执行后执行，
+    这里是应该而不是一定，所以实际执行顺序可能taskB在taskA之前执行
+
+    * (2) ```groovy taskB.mustRunAfter(taskA) `` 这个规则就更严格，taskB就必须在taskA之后执行。
+
+
+ * 5、onlyIf的是使用规则
+    *（1）onlyIf是一个函数，他接受一个闭包参数，这个闭包的返回值是boolean类型，返回true则该任务执行
+    ，否则直接跳过。利用这个函数可以控制程序在什么情况下打什么包、什么时候执行什么单元测试等。
+
+    * (2)示例
+    ```groovy
+    final String BUILD_APPS_ALL = "all"
+    final String BUILD_APPS_SHOUFA = "shoufa"
+    final String BUILD_APPS_EXCLUDE_SHOUFA = "exclude_shoufa"
+
+    //// 需求首发渠道只有 X86Free 和 X86Paid
+
+    task X86Free {
         doLast {
-            println "创建任务的原型为 Task task(String name, Closure configureClosure);"
-            println "任务描述: $description"
+            println "X86Free 包"
         }
     }
-   ```
+
+    task armFree {
+        doLast {
+            println "armFree 包"
+        }
+    }
+
+    task X86Paid {
+        doLast {
+            println "X86Paid 包"
+        }
+    }
+
+    task armPaid {
+        doLast {
+            println("armPaid 包")
+        }
+    }
+
+
+    task myBuild {
+        group BasePlugin.BUILD_GROUP
+        description "打渠道包"
+    }
+
+    myBuild.dependsOn 'X86Free', 'X86Paid', 'armFree', 'armPaid'
+
+    X86Free.onlyIf {
+        def excute = false
+        if (project.hasProperty("build_apps")) {
+            Object buildApps = project.property("build_apps")
+            if (BUILD_APPS_SHOUFA == buildApps
+                    || BUILD_APPS_ALL == buildApps) {
+                excute = true
+            }
+        }
+        excute
+    }
+
+    X86Paid.onlyIf {
+        def excute = false
+        if (project.hasProperty("build_apps")) {
+            Object buildApps = project.property("build_apps")
+            if (BUILD_APPS_SHOUFA == buildApps
+                    || BUILD_APPS_ALL == buildApps) {
+                excute = true
+                X86Paid.dependsOn(':app:assembleX86PaidRelease')
+            }
+        }
+        excute
+    }
+
+    armFree.onlyIf {
+        def excute = false
+        if (project.hasProperty("build_apps")) {
+            Object buildApps = project.property("build_apps")
+            if (BUILD_APPS_EXCLUDE_SHOUFA == buildApps
+                    || BUILD_APPS_ALL == buildApps) {
+                excute = true
+                armFree.dependsOn(':app:assembleArmFreeRelease')
+            }
+        }
+        excute
+    }
+
+    armPaid.onlyIf {
+        def excute = false
+        if (project.hasProperty("build_apps")) {
+            Object buildApps = project.property("build_apps")
+            if (BUILD_APPS_EXCLUDE_SHOUFA == buildApps
+                    || BUILD_APPS_ALL == buildApps) {
+                excute = true
+                armPaid.dependsOn(':app:assembleArmPaidRelease')
+            }
+        }
+        excute
+    }
+
+    ///执行 ./gradlew myBuild -P build_apps=shoufa
+    //输出
+    //X86Free 包
+    //X86Paid 包
+
+
+    ///执行 ./gradlew myBuild -P build_apps=all
+    全部都任务都会执行
+
+    ```
+
+
 
 
 ###### 3、Gradle插件
-* 二进制插件
+* 首先我们来认识下什么是gradle插件，插件顾名思义是具有插拔功能的小部件，这个小部件可以在我们的项目中
+随插随拔随用，那么插件在项目的实际开发过程中能给我们带来什么作用呢？
+    * (1)添加插件可以添加任务到项目中，帮我们完成测试、编译、打包等工作。
+    * (2)可以添加依赖配置到项目中来，通过这些依赖配置来配置我们项目构建过程中
+    需要的依赖，比如编译过程中依赖的第三方库等。
+    * (3)向项目现有的对象类型添加新的扩展属性、方法等，通过这些扩展属性、方法来配置，优化我们的构建过程，
+    比如android{}这个配置就是Android Gradle插件为Project添加的一个扩展。
+    * (4)可以实现对项目进行一些约定，比如应用Java插件之后，约定src/main/java目录下就是我们存放源代码
+    的位置，编译的时候也是编译这个目录下的java源代码文件。
 
-* 应用脚本插件
 
-* 应用第三方发布的插件
+*那么我们在项目中如何应用一个插件呢？下面我们就来看下几种不同引进插件的方式。
+    * (1)二进制插件
+    ```groovy
+    apply plugin:'pluginId'
+    ```
 
-* 应用plugins DSL应用插件
+    * (2)应用脚本插件
+    ```groovy
+    apply from:'scriptFileName'
+    apply from:'version.gradle' ///version.gradle是我们自己实现的一个gradle脚本
+    ```
+
+    * (3)应用第三方发布的插件
+    ```
+    //groovy第三方发布的作为jar的二进制插件，我们在应用的时候，必须要在buildscript{}里配置
+    classpath才能用，这个不像Gradle为我们提供的内置插件。比如我们的Android Gradle插件，就属于
+    Android发布的第三方插件，如果要使用他们我们必须要进行配置：
+
+    buildscript{
+        repositories{
+            jcenter()
+        }
+
+        dependencies{
+            classpath 'com.android.tools.build:gradle:1.5.0'  ///进行配置
+        }
+    }
+
+    ///如上配置好后就可以应用插件了：
+    apply plugin:'com.android.application'
+
+    如果我们没有提前在buildscript{}里面配置依赖classpath,就会提示找不到这个插件
+    ```
+
+    * (4)应用plugins DSL应用插件
 
 ###### 4、自定义插件
 
@@ -180,6 +364,7 @@
 
 
 ###### 6、Android Gradle插件
+
 
 ###### 7、自定义Android Gradle工程
 
@@ -272,4 +457,3 @@
 * 提高多渠道构建的效率
 
 
-------多种方式 访问任务

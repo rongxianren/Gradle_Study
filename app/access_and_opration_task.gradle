@@ -1,0 +1,15 @@
+
+
+/// 1、直接通过任务名字访问操作任务
+task exeAccessTask1
+exeAccessTask1.doLast{
+    println 'exeAccessTask1.doLast'
+}
+
+
+/// 2、任务都是通过TaskContainer创建的，其实TaskContainer就是我们创建的任务集合，
+/// 所以在project中我们可以通过tasks的属性访问TaskContainer
+task exeAccessTask2
+tasks['exeAccessTask2'].doLast{
+    println 'exeAccessTask2.doLast'
+}
