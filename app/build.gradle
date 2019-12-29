@@ -31,7 +31,7 @@ android {
 
     }
 
-    sourceSets{
+    sourceSets {
 
     }
 
@@ -86,24 +86,48 @@ android {
             dimension "version"
             applicationId "com.app.free"
             manifestPlaceholders = [price: 0]
+            buildConfigField("String", "dimension", "version")
+            resValue 'string', 'version_tips', '这是免费的版本'
         }
 
         paid {
             dimension "version"
             applicationId "com.app.paid"
             manifestPlaceholders = [price: 100]
+            buildConfigField("String", "dimension", "version")
+
+            resValue 'string', 'version_tips', '这是收费的版本'
         }
 
         arm {
             dimension "abi"
+            buildConfigField("String", "dimension", '"abi"')
         }
 
         x86 {
             dimension "abi"
+            buildConfigField("String", "dimension", '"abi"')
+        }
+    }
+
+    android.applicationVariants.all { variant ->
+        variant.outputs.each { output ->
+            if (output.outputFile != null && output.outputFile.name.endsWith('.apk')
+                    && 'release' == variant.buildType.name) {
+                ///productFlavors[n] 如果productFlavors 中配置了 dimension 那么productFlavors.size>1
+                def apkFile = "${project.name}_${variant.productFlavors[0].name}${variant.productFlavors[1].name}_${variant.versionName}_${buildTime()}.apk"
+                output.outputFileName = apkFile
+            }
         }
     }
 }
 
+
+def buildTime() {
+    def date = new Date()
+    def formatDate = date.format('yyyyMMdd')
+    formatDate
+}
 
 dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])

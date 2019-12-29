@@ -364,15 +364,34 @@
 
 
 ###### 6、Android Gradle插件
+* android{}其实是Gradle的一个第三方插件扩展类型，由google团队开发的。从Android角度看，Android插件
+是基于Gradle构建的，和Android Studio完美结无缝搭配的新一代构建系统。下面我们看看Android官方对他的介绍。
+    *（1）很容易的实现代码和资源的重用。
+    * (2) 很容易创建应用的衍生版本，所以不管是创建多个apk,还是不同功能的应用都很方便。比如说构建多渠道应用包。
+    * (3) 很容易配置、扩展以及自定义构建过程。
+    * (4) 和IDE无缝整合。
 
+* 1、Android Gradle插件的分类。
+    * (1)App插件 id: com.android.application
+    * (2)Library插件 id: com.android.library
+    * (3)Test插件 id: com.android.test
+
+* 2、defaultConfig 配置。
+    * defaultConfig顾名思义是默认的配置，那么是针对什么的默认配置呢？首先defaultConfig是一个ProductFlavor。
+    ProductFlavor允许我们根据不同的情况同时生成多个不同的apk,比如我们平时经常用到的多渠道包，如果我们没有针对
+    我们自定义的ProductFlavor单独配置的话，那么这个自定义的ProductFlavor就会默认使用上面defaultConfig定义的配置。
+
+* 3、NamedDomainObjectContainer 命名域容器对象。
+    * android{} 里面signingConfigs、buildTypes、productFlavors 都是NamedDomainObjectContainer<T>只是对应的类型T不一样，针对这种类型
+    可以在{}块中自定义对象列表，具体对象的类型就是T所代表的实际类型，可以随意定义对象的名字，就像productFavors中渠道名字可以自由定义
+    当不知道{}中的对象有哪些选项可以配置的时候，可以具体的查看T所对应的具体类型中支持哪些配置项。
 
 ###### 7、自定义Android Gradle工程
 
 
 ###### 8、Android Gradle 高级自定义
-* 分模块管理gradle文件内容 ext的用法
 
-* gradle中执行shell脚本命令
+* 1、gradle中执行shell脚本命令
     * git中 动态获取版本号和版本名称(实际中好像不太实用)
     ```groovy
     def getAppVersionName() {
@@ -395,12 +414,12 @@
     }
 
     task VersionTask {
-        println " version ${getAppVersionName()} veriosnCode = ${getVersionCode()}"
+        println " version ${getAppVersionName()} versionCode = ${getVersionCode()}"
     }
     ```
-* 属性文件中动态获取版本信息
+    * exec执行后的输出可以用standardOutput获得，他是BaseExecSpec的一个属性。ExecSpec继承了BaseExecSpec,所以可以在exec{}闭包使用。
 
-* 隐藏签名文件信息
+* 2、隐藏签名文件信息
     * 1、签名文件信息存放在服务器上，打包的时候从打包服务器动态获取设置。
     * 2、签名信息以环境变量的形式配置到打包服务器中，打包的时候通过 System.getenv("Name")函数去获取
     * 3、示例展示
@@ -424,8 +443,115 @@
         }
     }
     ```
+* 3、批量修改生成的apk的文件名字。
+    * 既然想修改生成的apk文件名，那么就要修改Android Gradle打包输出，为了解决这个问题Android对象为我们提供了
+    3个属性： applicationVariant(用于android应用gradle插件) libraryVariant(用于Android库Gradle插件)，testVariant
+    (前面两种插件都适用)
+    特别需要注意的是，访问以上3中集合都会触发创建所有的任务，这意味着访问这些集合后无需重新配置就会发生，也就是说
+    假如我们通过访问这些集合，修改生成apk的输出文件名，那么就会自动触发创建所有任务，此时我们修改后的新的apk文件就会
+    起作用，达到修改apk文件名的目的。
 
+    * 示例
+    ```groovy
+    android.applicationVariants.all { variant ->
+            variant.outputs.each { output ->
+                if (output.outputFile != null && output.outputFile.name.endsWith('.apk')
+                        && 'release' == variant.buildType.name) {
+                    ///productFlavors[n] 如果productFlavors 中配置了 dimension 那么productFlavors.size>1
+                    def apkFile = "${project.name}_${variant.productFlavors[0].name}${variant.productFlavors[1].name}_${variant.versionName}_${buildTime()}.apk"
+                    output.outputFileName = apkFile
+                }
+            }
+        }
 
+    def buildTime() {
+        def date = new Date()
+        def formatDate = date.format('yyyyMMdd')
+        formatDate
+    }
+    ```
+    * applicationVariants是一个DomainObjectCollect集合，我们可以通过all方法进行遍历，遍历的每一个variant都是一个生成的产物。
+    applicationVariants中的variant都是ApplicationVariant,通过查看源代码，可以看到它有一个outputs作为他的输出。每一个ApplicationVariant至少有个一输出，
+    也可以有多个，所以这里的outputs属性是一个List集合，我们再遍历它。如果他的名字是以'.apk'结尾的话，那么这个文件就是我们要修改名字的文件了。
+
+* 4、动态配置Android Manifest文件
+    * 动态配置AndroidManifest文件，顾名思义就是在构建的过程中，动态的修改AndroidManifest文件中的一些变量内容。
+    * 要达到动态修改的目的，我们就要利用ProductFlavor的 ManifestPlaceHolders属性,他是一个<font color="red">map</font>类型，所以我们可以同时配置多个占位符。
+
+    * 示例
+    ```groovy
+    ///需求：使用友盟等第三方分析统计SDK的时候，会要求在AndroidManifest文件中指定渠道名称
+    <meta-data android:value="Channel ID" android:name="UMENG_CHANNEL">
+    ///示例中我们需要把Channel ID替换成不同的渠道名称，比如 google、baidu、miui等。
+
+    ///下面我们就来根据不同渠道来配置
+    android{
+        、、、、、
+        、、、、
+
+        productFlavors{
+            google{///google渠道
+                manifestPlaceholders['UMENG_CHANNEL': 'google']
+            }
+
+            baidu{
+                manifestPlaceholders['UMENG_CHANNEL': 'baidu']
+            }
+        }
+    }
+
+    ///manifest文件中的用法
+    <application>
+        <meta android:value="${UMENG_CHANNEL}" android:name="UMENG_CHANNEL"/>
+        <activity>
+            、、、、、、、
+            、、、、、、、
+        </activity>
+    </application>
+
+    ///其中${UMENG_CHANNEL}就是一个占位符构建的过程中就会根据渠道名被替换成 google或者baidu
+
+    ///以上配置方式有个缺陷就是如果我们的渠道非常多的情况下，我们就要一个个的去配置，这样就会变得非常麻烦，维护起来也是非常麻烦。
+    假如我们的友盟渠道名和我们在Android gradle配置的ProductFlavor一样的话就简单了，我们就可以通过迭代productFlavors批量的方式进行修改。
+
+    productFlavors.all{flavor->
+        manifestPlaceholders.put('UMENG_CHANNEL', name)
+    }
+
+    ```
+* 5、自定义BuildConfig
+    * buildConfigField("type", "name", "value")
+        * 示例
+        ```groovy
+        buildConfigField("Boolean", "IS_DEV", "DEBUG || Boolean.valueOf(" + project.dev + ")")
+
+        buildConfigField("String", "WEB_URL", '"http://www.google.com"')
+        //注意 value这个参数，是单引号中间的部分。尤其对于String类型的值，里面的双引号一定不能省略，不然就会生成如下这样，报编译错误：
+        public static final String WEB_URL = http://www.google.com
+        ```
+
+* 6、动态添加自定义的资源
+    * 要实现动态添加自定义资源，就要利用Android gradle的 resValue方法。
+    * 示例
+    ```groovy
+    android{
+        productFlavors{
+            google{
+                resValue "string", 'channel_tips', 'gogle渠道欢迎你'
+            }
+            baidu{
+                resValue "string", 'channel_tips', 'baidu渠道欢迎你'
+            }
+        }
+    }
+    //如上resValue为项目分别定义不同value的String类型的渠道欢迎词。这样我们就可以在项目中直接引用他们了，当我们运行不同
+    的渠道包的实现，就会动态的显示不同的欢迎词。
+
+    //生成的资源文件所在的位置
+    //build/generated/res/resValues/baidu/debug/values/gradleResValues.xml 中。
+
+    ///除了string这个类型，我们也可以使用id、bool、dimen、integer、color等这些类型来自定义values资源。
+    ```
 
 ###### 9、Android Gradle 多项目构建
 
